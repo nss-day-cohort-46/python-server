@@ -1,7 +1,21 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from animals import get_all_animals
+from animals import get_all_animals, get_single_animal
 
 class HandleRequests(BaseHTTPRequestHandler):
+    def parse_url(self, path):
+        path_params = path.split('/')
+        resource = path_params[1]
+        id = None
+
+        try:
+            id = int(path_params[2])
+        except IndexError as e:
+            print(e)
+        except ValueError:
+            pass
+            
+        return (resource, id)
+
     def _set_headers(self, status):
         self.send_response(status)
         self.send_header('Content-type', 'application/json')
@@ -18,16 +32,17 @@ class HandleRequests(BaseHTTPRequestHandler):
     def do_GET(self):
         self._set_headers(200)
 
-        self.new = 'banana'
-
         print(self.path)
 
-        if self.path == '/animals':
-            response = get_all_animals()
-        else:
-            response = []
+        (resource, id) = self.parse_url(self.path)
 
-        self.wfile.write(f'{response}'.encode())
+        if resource == 'animals':
+            if id is not None:
+                response = f'{get_single_animal(id)}'
+            else:
+                response = f'{get_all_animals()}'
+
+        self.wfile.write(response.encode())
 
     def do_POST(self):
         self._set_headers(201)
