@@ -3,7 +3,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from animals import (get_all_animals,
                     get_single_animal,
                     create_animal,
-                    delete_animal)
+                    delete_animal,
+                    update_animal)
 
 class HandleRequests(BaseHTTPRequestHandler):
     def parse_url(self, path):
@@ -62,10 +63,19 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == 'animals':
             new_object = create_animal(post_body)
 
-        self.wfile.write(f'{new_object}'.encode())
+        self.wfile.write(json.dumps(new_object).encode())
 
     def do_PUT(self):
-        self.do_POST()
+        self._set_headers(201)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
+
+        (resource, id) = self.parse_url(self.path)
+
+        if resource == 'animals':
+            update_animal(post_body)
+
     
     def do_DELETE(self):
         self._set_headers(204)
