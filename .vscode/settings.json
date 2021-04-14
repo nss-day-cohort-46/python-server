@@ -1,3 +1,11 @@
 {
-    "python.pythonPath": "/Users/hannahhall/.local/share/virtualenvs/python-server-3x6WzsrI/bin/python"
+    "python.pythonPath": "/Users/hannahhall/.local/share/virtualenvs/python-server-3x6WzsrI/bin/python",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "Python Kennels",
+            "database": "./kennels.db"
+        }
+    ]
 }
