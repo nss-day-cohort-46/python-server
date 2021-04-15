@@ -1,3 +1,8 @@
+import sqlite3
+import json
+
+from models import Animal
+
 ANIMALS = [
     {
         'id': 1,
@@ -27,16 +32,71 @@ ANIMALS = [
 
 
 def get_all_animals():
-    return ANIMALS
+    with sqlite3.connect('./kennels.db') as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        """)
+
+        animals = []
+
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            animal = Animal(
+                row['id'],
+                row['name'],
+                row['breed'],
+                row['status'],
+                row['location_id'],
+                row['customer_id']
+            )
+            animals.append(animal.__dict__)
+
+    return json.dumps(animals)
+
+
 
 def get_single_animal(id):
-    requested_animal = None
+    with sqlite3.connect('./kennels.db') as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
 
-    for animal in ANIMALS:
-        if animal['id'] == id:
-            requested_animal = animal
-    
-    return requested_animal
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        WHERE a.id = ?
+        """, ( id, ))
+
+        data = db_cursor.fetchone()
+        
+        animal = Animal(
+            data['id'],
+            data['name'],
+            data['breed'],
+            data['status'],
+            data['location_id'],
+            data['customer_id']
+        )
+
+        return json.dumps(animal.__dict__)
+
+
 
 def create_animal(animal):
     max_id = ANIMALS[-1]['id']
