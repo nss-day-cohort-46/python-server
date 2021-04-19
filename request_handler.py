@@ -90,8 +90,18 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         (resource, id) = self.parse_url(self.path)
 
+        success = False
+
         if resource == 'animals':
-            update_animal(post_body)
+            success = update_animal(id, post_body)
+
+        if success:
+            self._set_headers(204)
+        else:
+            self._set_headers(404)
+
+        self.wfile.write("".encode())
+        
 
     
     def do_DELETE(self):
